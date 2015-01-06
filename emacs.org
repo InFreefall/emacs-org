@@ -72,7 +72,7 @@ I like dark themes, and Zenburn is the best I have found so far.
 * Package Configuration
 ** Key chord mode
 #+begin_src emacs-lisp
-  (install 'key-chord-mode)
+  (install 'key-chord)
   (setq key-chord-two-keys-delay .025
         key-chord-one-key-delay .020)
   (key-chord-mode 1)
