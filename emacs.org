@@ -1,0 +1,226 @@
+#+TITLE: Emacs Configuration
+#+OPTIONS: toc:nil
+
+* Requires
+#+begin_src emacs-lisp
+(require 'cl)
+(require 'package)
+(load-file "~/.emacs.d/toggle-case.el")
+#+end_src
+* Package Installation 
+Load software from the Marmalade, MELPA, and ELPA repositories
+
+#+begin_src emacs-lisp
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives
+	     '("elpa" . "http://elpa.gnu.org/packages/") t)
+(package-initialize)
+
+(setq has-updated nil)
+
+
+(defun install (package)
+  (unless (package-installed-p package)
+    (unless has-updated (progn (package-refresh-contents)
+                               (setq has-updated 't)))
+    (package-install package)))
+#+end_src
+* General Emacs Configuration
+I really don't like the backup files filling up directories automatically
+#+begin_src emacs-lisp
+(setq make-backup-files nil)
+#+end_src
+
+Reduce the number of questions that Emacs asks
+#+begin_src emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+(setq large-file-warning-threshold 200000000) ; Warn for files > 200 MB
+(setq kill-buffer-query-functions
+      (remq 'process-kill-buffer-query-function
+            kill-buffer-query-functions))
+#+end_src
+* Text Editing Configuration
+#+begin_src emacs-lisp
+(subword-mode 1)
+
+(setq-default indent-tabs-mode nil) ; Don't use tabs for indentation
+#+end_src
+* User Interface Configuration
+** Zenburn
+I like dark themes, and Zenburn is the best I have found so far.
+
+#+begin_src emacs-lisp
+(install 'zenburn-theme)
+(load-theme 'zenburn t)
+#+end_src
+** Get rid of unnecessary UI elements
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t
+      inhibit-startup-echo-area-message t)
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode -1)
+#+end_src
+
+** Better buffer switching
+#+begin_src emacs-lisp
+(iswitchb-mode 1)
+#+end_src
+* Package Configuration
+** Key chord mode
+#+begin_src emacs-lisp
+(setq key-chord-two-keys-delay .025
+      key-chord-one-key-delay .020)
+(key-chord-mode 1)
+#+end_src
+** Smex - more helpful M-x
+#+begin_src emacs-lisp
+(install 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+#+end_src
+** Projectile
+#+begin_src emacs-lisp
+(install 'projectile)
+(projectile-global-mode)
+#+end_src
+** Ace Jump Mode
+#+begin_src emacs-lisp
+(install 'ace-jump-mode)
+#+end_src
+* Keybindings
+** Keybinding initilization
+Currently, I put all of my keybinds into a minor mode.
+This ensures that, even if another major mode tries to write over my keybinds, they still work.
+
+With other methods, I have run into issues with Ruby mode and newline indentation, for example.
+
+Also, this defines a method bind-key that takes a kbd string, a function, and sets up the keybind.
+#+begin_src emacs-lisp
+(defvar my-keys-minor-mode-map (make-keymap) "my-keys-minor-mode keymap.")
+
+(define-minor-mode my-keys-minor-mode
+  "A minor mode so that my key settings override annoying major modes."
+  t " my-keys" 'my-keys-minor-mode-map)
+
+(defadvice load (after give-my-keybindings-priority)
+  "Try to ensure that my keybindings always have priority."
+(if (active-minibuffer-window) 
+    (message "in minibuffer")
+(message "not in minibuffer"))
+  (if (not (eq (car (car minor-mode-map-alist)) 'my-keys-minor-mode))
+      (let ((mykeys (assq 'my-keys-minor-mode minor-mode-map-alist)))
+        (assq-delete-all 'my-keys-minor-mode minor-mode-map-alist)
+        (add-to-list 'minor-mode-map-alist mykeys))))
+(ad-activate 'load)
+
+
+
+(my-keys-minor-mode 1)
+
+(defun bind-key (keybind f)
+  (define-key my-keys-minor-mode-map (kbd keybind) f))
+#+end_src
+
+I use key-chord mode for some keybindings
+#+begin_src emacs-lisp
+(install 'key-chord)
+#+end_src emacs-lisp
+
+** Text editing
+Useful function definitions:
+#+begin_src emacs-lisp
+(defun kill-ring-save-line (&optional arg)
+  (interactive)
+  (kill-ring-save (point)
+                  (progn (end-of-visible-line) (point))))
+#+end_src
+
+Keybindings
+#+begin_src emacs-lisp
+(bind-key "C-h" 'delete-backward-char)
+(bind-key "M-h" 'backward-kill-word)
+(bind-key "C-." 'toggle-case)
+(bind-key "C-+" 'evil-numbers/inc-at-pt)
+(bind-key "<C-kp-add>" 'evil-numbers/inc-at-pt)
+(bind-key "C--" 'evil-numbers/dec-at-pt)
+(bind-key "<C-kp-subtract>" 'evil-numbers/dec-at-pt)
+(bind-key "M-k" 'kill-ring-save-line)
+(bind-key "<C-return>" 'dabbrev-expand)
+(bind-key "C-c SPC" 'ace-jump-char-mode)
+#+end_src
+
+Bind return differently, since I don't want it to overwrite the minibuffer.
+If it does, strange and terrible things happen.
+#+begin-src emacs-lisp
+(define-key global-map (kbd "RET") 'newline-and-indent)
+#+end_src
+** Window navigation
+#+begin_src emacs-lisp
+(key-chord-define my-keys-minor-mode-map "lj" 'windmove-left)
+(key-chord-define my-keys-minor-mode-map "lk" 'windmove-right)
+(key-chord-define my-keys-minor-mode-map "ax" 'switch-to-buffer)
+#+end_src
+** Org-mode
+#+begin_src emacs-lisp
+(bind-key "C-c l" 'org-store-link)
+#+end_src
+* Org-mode
+** Syntax highlighting in org mode
+Mostly for this file.
+#+begin_src emacs-lisp
+(setq org-src-fontify-natively t)
+#+end_src
+
+* Doc View Mode
+#+begin_src emacs-lisp
+(setq doc-view-continuous t)
+#+end_src
+* Language-specific Configuration
+** Haskell
+#+begin_src emacs-lisp
+(install 'haskell-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+#+end_src
+** C
+Set up indentation how I prefer it
+#+begin_src emacs-lisp
+(setq c-default-style "gnu"
+      c-basic-offset 2)
+(c-set-offset 'substatement-open 0)
+#+end_src
+
+Consider Arduino files to be C files
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\.ino$" . c-mode))
+#+end_src
+** QML
+QML's syntax is close enough to javascript that I've found javascript-mode to work well enough
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.qml\\'" . javascript-mode))
+#+end_src
+** Scala
+Install the major mode and REPL interaction mode
+#+begin_src emacs-lisp
+(install 'scala-mode2)
+(install 'sbt-mode)
+#+end_src
+** Lisp / Emacs Lisp
+#+begin_src emacs-lisp
+  (autoload 'enable-paredit-mode "paredit"
+    "Turn on pseudo-structural editing of Lisp code."
+    t)
+  (add-hook 'emacs-lisp-mode-hook       'enable-paredit-mode)
+  (add-hook 'lisp-mode-hook             'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+  (add-hook 'scheme-mode-hook           'enable-paredit-mode)
+#+end_src
+* Encryption
+#+begin_src emacs-lisp
+  (require 'epa-file)
+  
+#+end_src
