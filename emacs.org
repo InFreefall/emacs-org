@@ -92,6 +92,10 @@ I like dark themes, and Zenburn is the best I have found so far.
 #+begin_src emacs-lisp
 (install 'ace-jump-mode)
 #+end_src
+** Magit
+#+begin_src emacs-lisp
+  (install 'magit)
+#+end_src
 * Keybindings
 ** Keybinding initilization
 Currently, I put all of my keybinds into a minor mode.
