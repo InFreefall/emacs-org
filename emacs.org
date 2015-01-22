@@ -212,6 +212,7 @@ Install the major mode and REPL interaction mode
 #+end_src
 ** Lisp / Emacs Lisp
 #+begin_src emacs-lisp
+  (install 'paredit)
   (autoload 'enable-paredit-mode "paredit"
     "Turn on pseudo-structural editing of Lisp code."
     t)
@@ -224,4 +225,13 @@ Install the major mode and REPL interaction mode
 #+begin_src emacs-lisp
   (require 'epa-file)
   
+#+end_src
+* Miscellaneous Functions
+** sudo-find-file
+#+begin_src emacs-lisp
+  (defun sudo-find-file (file-name)
+    "Like find file, but opens the file as root."
+    (interactive "FSudo Find File: ")
+    (let ((tramp-file-name (concat "/sudo::" (expand-file-name file-name))))
+      (find-file tramp-file-name)))
 #+end_src
