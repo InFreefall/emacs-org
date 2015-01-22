@@ -226,9 +226,11 @@ Install the major mode and REPL interaction mode
   (add-hook 'scheme-mode-hook           'enable-paredit-mode)
 #+end_src
 * Encryption
+Any file ending in .gpg will be automatically encrypted.
+When creating a new file, it will ask for a password when you first save it.
+Then, the password will be required in order to open the file.
 #+begin_src emacs-lisp
   (require 'epa-file)
-  
 #+end_src
 * Miscellaneous Functions
 ** sudo-find-file
