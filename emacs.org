@@ -241,3 +241,11 @@ Then, the password will be required in order to open the file.
     (let ((tramp-file-name (concat "/sudo::" (expand-file-name file-name))))
       (find-file tramp-file-name)))
 #+end_src
+
+* Todo list
+LaTeX auto-compile on save
+Keybind in LaTeX mode for compile & open auto-reverted pdf viewer
+Why does C-c C-e not open a new environment? (It fixes if I (package-install 'auctex))
+C-x h for help prefix
+Better way to type " in latex-mode
+Better method than C-c C-e center <RET> C-c C-e tikzcd <RET>
