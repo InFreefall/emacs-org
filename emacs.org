@@ -96,6 +96,12 @@ I like dark themes, and Zenburn is the best I have found so far.
 #+begin_src emacs-lisp
   (install 'magit)
 #+end_src
+** Yasnippet
+#+begin_src emacs-lisp
+  (install 'yasnippet)
+  (require 'yasnippet)
+  (yas-global-mode 1)
+#+end_src
 * Keybindings
 ** Keybinding initilization
 Currently, I put all of my keybinds into a minor mode.
@@ -168,6 +174,12 @@ If it does, strange and terrible things happen.
 (key-chord-define my-keys-minor-mode-map "lj" 'windmove-left)
 (key-chord-define my-keys-minor-mode-map "lk" 'windmove-right)
 (key-chord-define my-keys-minor-mode-map "ax" 'switch-to-buffer)
+#+end_src
+** Buffer management
+Screw this, I'm done with accidentally hitting C-x C-b and getting a stupid buffer list buffer.
+Why would I /EVER/ want that?
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-b") 'iswitchb-buffer)
 #+end_src
 ** Org-mode
 #+begin_src emacs-lisp
