@@ -42,11 +42,23 @@ Reduce the number of questions that Emacs asks
       (remq 'process-kill-buffer-query-function
             kill-buffer-query-functions))
 #+end_src
+
+Scroll the screen one line at a time
+#+begin_src emacs-lisp
+(setq scroll-step            1
+      scroll-conservatively  10000)
+#+end_src emacs-lisp
 * Text Editing Configuration
 #+begin_src emacs-lisp
 (subword-mode 1)
 
 (setq-default indent-tabs-mode nil) ; Don't use tabs for indentation
+#+end_src
+
+I'm working with lambda-calculus right now, and I'm getting lost in
+the parentheses without this.
+#+begin_src emacs-lisp
+  (show-paren-mode 1)
 #+end_src
 * User Interface Configuration
 ** Zenburn
@@ -236,6 +248,24 @@ Install the major mode and REPL interaction mode
   (add-hook 'lisp-mode-hook             'enable-paredit-mode)
   (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
   (add-hook 'scheme-mode-hook           'enable-paredit-mode)
+#+end_src
+** OCaml
+From https://github.com/realworldocaml/book/wiki/Installation-Instructions
+#+begin_src emacs-lisp
+  (install 'tuareg)
+  (install 'utop)
+  (install 'merlin)
+
+  (add-hook 'tuareg-mode-hook 'tuareg-imenu-set-imenu)
+  (setq auto-mode-alist
+        (append '(("\\.ml[ily]?$" . tuareg-mode)
+                  ("\\.topml$" . tuareg-mode))
+                auto-mode-alist)) 
+  (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
+  (add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
+  (add-hook 'tuareg-mode-hook 'merlin-mode)
+  (setq merlin-use-auto-complete-mode t)
+  (setq merlin-error-after-save nil)
 #+end_src
 * Encryption
 Any file ending in .gpg will be automatically encrypted.
