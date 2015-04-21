@@ -267,6 +267,17 @@ From https://github.com/realworldocaml/book/wiki/Installation-Instructions
   (setq merlin-use-auto-complete-mode t)
   (setq merlin-error-after-save nil)
 #+end_src
+** LaTeX 
+I want it to automatically recompile my PDF whenever I save a LaTeX file.
+#+begin_src emacs-lisp
+  (install 'auctex)
+
+  (add-hook 'LaTeX-mode-hook
+            (lambda () (message "running latex-mode-hook") (add-hook 'before-save-hook
+                                    (lambda ()
+                                      (shell-command (concat "pdflatex " (buffer-file-name))))
+                                    nil 'make-it-local)))
+#+end_src
 * Encryption
 Any file ending in .gpg will be automatically encrypted.
 When creating a new file, it will ask for a password when you first save it.
